@@ -65,6 +65,7 @@ jobs:
             target: s390x
           - runner: ubuntu-latest
             target: ppc64le
+        manylinux: [auto, musllinux_1_2]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -76,11 +77,11 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist -i ${{ env.UNIX_BUILD_VERSION }}
           sccache: "true"
-          manylinux: auto
+          manylinux: ${{ matrix.manylinux }}
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-${{ matrix.platform.target }}
+          name: wheels-linux-${{ matrix.platform.target }}-${{ matrix.manylinux }}
           path: dist
 
   windows:
