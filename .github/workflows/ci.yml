@@ -48,45 +48,47 @@ jobs:
         run: python tests/test_fastcrc.py
 
   linux:
-    runs-on: ${{ matrix.platform.runner }}
+    runs-on: ubuntu-latest
     needs: test
     strategy:
       matrix:
-        platform:
-          - runner: ubuntu-latest
-            target: x86_64
-          - runner: ubuntu-latest
-            target: x86
-          - runner: ubuntu-latest
-            target: aarch64
-          - runner: ubuntu-latest
-            target: armv7
-          - runner: ubuntu-latest
-            target: s390x
-          - runner: ubuntu-latest
-            target: ppc64le
-        manylinux: [auto, musllinux_1_2]
-        exclude:
-          - platform:
-              runner: ubuntu-latest
-              target: s390x
-            manylinux: musllinux_1_2
+        platform: [
+          { target: "x86_64-unknown-linux-musl", image_tag: "x86_64-musl" },
+          { target: "i686-unknown-linux-musl", image_tag: "i686-musl" },
+          { target: "aarch64-unknown-linux-musl", image_tag: "aarch64-musl" },
+          { target: "armv7-unknown-linux-musleabihf", image_tag: "armv7-musleabihf" },
+          { target: "powerpc64le-unknown-linux-musl", image_tag: "powerpc64le-musl" },
+          { target: "s390x-unknown-linux-musl", image_tag: "s390x-musl" },
+        ]
+    container:
+      image: docker://messense/rust-musl-cross:${{ matrix.platform.image_tag }}
+      env:
+        CFLAGS_armv7_unknown_linux_musleabihf: '-mfpu=vfpv3-d16'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
       - name: Build wheels
-        uses: PyO3/maturin-action@v1
+        uses: PyO3/maturin-action@main
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist -i ${{ env.UNIX_BUILD_VERSION }}
           sccache: "true"
-          manylinux: ${{ matrix.manylinux }}
+          manylinux: auto
+          container: off
+      - name: Build wheels - musllinux
+        uses: PyO3/maturin-action@main
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist -i ${{ env.UNIX_BUILD_VERSION }}
+          sccache: "true"
+          manylinux: musllinux_1_2
+          container: off
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
-          name: wheels-linux-${{ matrix.platform.target }}-${{ matrix.manylinux }}
+          name: wheels-linux-${{ matrix.platform.target }}
           path: dist
 
   windows:
