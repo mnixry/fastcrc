@@ -57,9 +57,10 @@ jobs:
           - target: x86
           - target: aarch64
           - target: armv7
-            muslabi: musleabihf
+            musl-image-tag: armv7-musleabihf
           - target: s390x
-          - target: powerpc64le
+          - target: ppc64le
+            musl-image-tag: powerpc64le-musl
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -80,7 +81,7 @@ jobs:
           sccache: "true"
           manylinux: auto
           container: >
-            messense/rust-musl-cross:${{ matrix.platform.target }}-${{ matrix.platform.muslabi || 'musl' }}
+            messense/rust-musl-cross:${{ matrix.platform.musl-image-tag || format('{0}-musl', matrix.platform.target) }}
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
