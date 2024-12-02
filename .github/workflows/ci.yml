@@ -62,6 +62,7 @@ jobs:
           - target: s390x
           - target: ppc64le
             musl-image-tag: powerpc64le-musl
+      fail-fast: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -80,7 +81,7 @@ jobs:
           target: ${{ matrix.platform.target }}
           args: --release --out dist -i ${{ env.UNIX_BUILD_VERSION }}
           sccache: "true"
-          manylinux: auto
+          manylinux: musllinux_1_2
           container: >
             messense/rust-musl-cross:${{ matrix.platform.musl-image-tag || format('{0}-musl', matrix.platform.target) }}
       - name: Upload wheels
