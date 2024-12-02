@@ -67,7 +67,9 @@ jobs:
             target: ppc64le
         manylinux: [auto, musllinux_1_2]
         exclude:
-          - target: s390x
+          - platform:
+              runner: ubuntu-latest
+              target: s390x
             manylinux: musllinux_1_2
     steps:
       - uses: actions/checkout@v4
