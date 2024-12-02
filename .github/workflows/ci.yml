@@ -55,6 +55,7 @@ jobs:
         platform:
           - target: x86_64
           - target: x86
+            musl-image-tag: i686-musl
           - target: aarch64
           - target: armv7
             musl-image-tag: armv7-musleabihf
