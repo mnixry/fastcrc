@@ -48,7 +48,6 @@ jobs:
         run: python tests/test_fastcrc.py
 
   linux:
-  linux:
     runs-on: ${{ matrix.platform.runner }}
     needs: test
     strategy:
